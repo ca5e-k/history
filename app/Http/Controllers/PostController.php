@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Like;
 
 class PostController extends Controller
 {
@@ -13,7 +14,17 @@ class PostController extends Controller
     public function index()
     {
         $posts=Post::all();
-        return view('post.index', compact('posts'));
+        // return view('post.index', compact('posts'));
+        $userLikes= Like::where('user_id', auth()->user()->id)
+        ->pluck('post_id')->toArray(); // ユーザーがいいねした投稿のIDを取得
+
+        return view('post.index', compact('posts', 'userLikes'));
+
+        // $posts = Post::withCount('likes')->orderBy('id', 'desc')->paginate(10);
+        // $param = [
+        //     'posts' => $posts,
+        // ];
+        // return view('posts.index', $param);
     }
 
     /**
@@ -46,7 +57,9 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return view('post.show', compact('post'));
+        // return view('post.show', compact('post'));
+        $like=Like::where('post_id', $post->id)->where('user_id', auth()->user()->id)->first();
+        return view('post.show', compact('post', 'like'));
     }
 
     /**
@@ -75,10 +88,16 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request,Post $post)
-    {
-        $post->delete();
-        $request->session()->flash('message', '削除しました');
-        return redirect('post');
-    }
+    // public function destroy(Request $request,Post $post)
+    // {
+    //     $post->delete();
+    //     $request->session()->flash('message', '削除しました');
+    //     return redirect('post');
+    // }
+
+    // public function show(Post $post)
+    // {  
+    //     $nice=Like::where('post_id', $post->id)->where('user_id', auth()->user()->id)->first();
+    //     return view('post.show', compact('post', 'like'));
+    // }
 }

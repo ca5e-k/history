@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\LikeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('post',PostController::class);
 
+// Route::post('/like/{postId}',[LikeController::class,'store']);
+// Route::post('/unlike/{postId}',[LikeController::class,'destroy']);
+
+Route::post('/like/{post}',[LikeController::class,'like'])->name('like');
+Route::post('/unlike/{post}',[LikeController::class,'unlike'])->name('unlike');
+
 // Language Switcher Route 言語切替用ルートだよ
 Route::get('language/{locale}', function ($locale) {
     app()->setLocale($locale);
@@ -38,7 +45,5 @@ Route::get('language/{locale}', function ($locale) {
 
     return redirect()->back();
 });
-
-Route::post('/posts/{post}/like', [LikeController::class, 'posts.Like']);
 
 require __DIR__.'/auth.php';

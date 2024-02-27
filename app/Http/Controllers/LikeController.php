@@ -3,39 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+
+use App\Models\Post;
 use App\Models\Like;
+use Auth;
+
+// use Illuminate\Support\Facades\Auth;
 
 class LikeController extends Controller
 {
-    public function like(Request $request)
-  {
-    $user_id = Auth::user()->id; //1.ログインユーザーのid取得
-    $post_id = $request->post_id; //2.投稿idの取得
-    $already_liked = Like::where('user_id', $user_id)->where('post_id', $post_id)->first(); //3.
+    // public function store($postId)
+    // {
+    //     Auth::user()->like($postId);
+    //     return 'ok!'; //レスポンス内容
+    // }
 
-    if (!$already_liked) { //もしこのユーザーがこの投稿にまだいいねしてなかったら
-        $like = new Like; //4.Likeクラスのインスタンスを作成
-        $like->post_id = $post_id; //Likeインスタンスにreview_id,user_idをセット
-        $like->user_id = $user_id;
+    // public function destroy($postId)
+    // {
+    //     Auth::user()->unlike($postId);
+    //     return 'ok!'; //レスポンス内容
+    // }
+
+    public function like(Post $post, Request $request){
+        $like=New like();
+        $like->post_id=$post->id;
+        $like->user_id=Auth::user()->id;
         $like->save();
-    } else { //もしこのユーザーがこの投稿に既にいいねしてたらdelete
-        Like::where('post_id', $post_id)->where('user_id', $user_id)->delete();
+        return back();
     }
-    //5.この投稿の最新の総いいね数を取得
-    $review_likes_count = Post::withCount('likes')->findOrFail($review_id)->likes_count;
-    $param = [
-        'post_likes_count' => $post_likes_count,
-    ];
-    return response()->json($param); //6.JSONデータをjQueryに返す
-  }
 
-  public function index(Request $request)
-  {
-      $reviews = Review::withCount('likes')->orderBy('id', 'desc')->paginate(10);
-      $param = [
-          'posts' => $posts,
-      ];
-      return view('posts.index', $param);
-  }
-
+    public function unlike(Post $post, Request $request){
+        $user=Auth::user()->id;
+        $like=Like::where('post_id', $post->id)->where('user_id', $user)->first();
+        $like->delete();
+        return back();
+    }
 }
