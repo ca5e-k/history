@@ -2,22 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Life;
 use Illuminate\Http\Request;
-use App\Models\Post;
-use App\Models\Like;
 
-class PostController extends Controller
+class LifeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $posts=Post::all();
-        $userLikes= Like::where('user_id', auth()->user()->id)
-        ->pluck('post_id')->toArray(); // ユーザーがいいねした投稿のIDを取得
-
-        return view('post.index', compact('posts', 'userLikes'));
+    {    
+     // 
     }
 
     /**
@@ -25,7 +20,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('post.create');
+        return view('life.create');
     }
 
     /**
@@ -40,47 +35,49 @@ class PostController extends Controller
 
         $validated['user_id'] = auth()->id();
 
-        $post = Post::create($validated);
+        $life = Life::create($validated);
         $request->session()->flash('message', '保存しました');
-        return redirect()->route('post.index');
+        return redirect()->route('home');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Post $post)
+    public function show(Life $life)
     {
-        $like=Like::where('post_id', $post->id)->where('user_id', auth()->user()->id)->first();
-        return view('post.show', compact('post', 'like'));
+        return view('life.show', compact('life'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Post $post)
+    public function edit(Life $life)
     {
-        return view('post.edit', compact('post'));
+        return view('life.edit', compact('life'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, Life $life)
     {
         $validated = $request->validate([
             'title' => 'required|max:20',
             'body' => 'required|max:400',
             ]);
             $validated['user_id'] = auth()->id();
-            $post->update($validated);
+            $life->update($validated);
             $request->session()->flash('message', '更新しました' );
             return back();
     }
 
-    public function destroy(Request $request,Post $post)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Life $life)
     {
-        $post->delete();
+        $life->delete();
         $request->session()->flash('message', '削除しました');
-        return redirect()->route('post.index');
+        return redirect()->route('life.index');
     }
 }

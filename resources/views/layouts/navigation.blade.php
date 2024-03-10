@@ -2,21 +2,25 @@
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
+            <div class="flex space-x-4">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ route('home') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-            </div>
+                <x-nav-link :href="route('post.index')" :active="request()->routeIs('post.index')" class="text-base"> <!-- text-baseを追加してテキストサイズを調整 -->
+                 投稿一覧
+                 </x-nav-link>
+                <x-nav-link :href="route('mutual-follows.index')" :active="request()->routeIs('mutual-follows.index')" class="text-base">
+                  メッセージ
+                </x-nav-link>
+                 <x-nav-link :href="route('post.create')" :active="request()->routeIs('post.create')" class="text-base">
+                   新規作成
+                  </x-nav-link>
+             </div>
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">

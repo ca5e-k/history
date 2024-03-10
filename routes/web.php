@@ -3,7 +3,14 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\LifeController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RelationController;
+use App\Http\Controllers\MutualFollowsController;
+use App\Http\Controllers\MessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +23,7 @@ use App\Http\Controllers\LikeController;
 |
 */
 
+// welcome.blade.phpを読み込んでいるということ
 Route::get('/', function () {
     return view('welcome');
 });
@@ -30,20 +38,32 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('post',PostController::class);
-
-// Route::post('/like/{postId}',[LikeController::class,'store']);
-// Route::post('/unlike/{postId}',[LikeController::class,'destroy']);
-
-Route::post('/like/{post}',[LikeController::class,'like'])->name('like');
-Route::post('/unlike/{post}',[LikeController::class,'unlike'])->name('unlike');
-
 // Language Switcher Route 言語切替用ルートだよ
 Route::get('language/{locale}', function ($locale) {
     app()->setLocale($locale);
     session()->put('locale', $locale);
-
     return redirect()->back();
 });
+
+Route::resource('post',PostController::class);
+Route::resource('life',LifeController::class);
+
+Route::post('/like/{post}',[LikeController::class,'like'])->name('like');
+Route::post('/unlike/{post}',[LikeController::class,'unlike'])->name('unlike');
+
+Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
+
+Route::get('/users/{user}/posts', [UserController::class, 'showPosts'])->name('users.posts.show');
+
+Route::post('/follow/{user}', [RelationController::class, 'follow'])->name('follow');
+Route::delete('/unfollow/{user}', [RelationController::class, 'unfollow'])->name('unfollow');
+
+// 相互フォローユーザー間のメッセージ送信のルート
+Route::post('/messages/send', [MessageController::class, 'send'])->middleware('auth')->name('messages.send');
+
+// 各ユーザーとのメッセージの表示
+Route::get('/messages/{user}', [MessageController::class, 'create'])->name('messages.create');
+
+Route::get('/mutual-follows', [MutualFollowsController::class, 'index'])->name('mutual-follows.index');
 
 require __DIR__.'/auth.php';

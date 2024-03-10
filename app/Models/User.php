@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Like;
 use App\Models\Post;
+use App\Models\Life;
 
 class User extends Authenticatable
 {
@@ -51,36 +52,33 @@ class User extends Authenticatable
     
     public function likes(){
       return $this->HasMany(Like::class);
-  }
+    }
 
-    // public function likes()
-    // {
-    //     return $this->belongsToMany('App\Models\Post','likes','user_id','post_id')->withTimestamps();
-    // }
+    public function lifes(){
+      return $this->HasMany(Life::class);
+    }
 
-    //この投稿に対して既にlikeしたかどうかを判別する
-    // public function isLike($postId)
-    // {
-    //   return $this->likes()->where('post_id',$postId)->exists();
-    // }
+    public function following() {
+        return $this->belongsToMany(User::class, 'relationships', 'follower_id', 'followed_id');
+    }
+    
+    public function followers() {
+        return $this->belongsToMany(User::class, 'relationships', 'followed_id', 'follower_id');
+    }
 
-    // //isLikeを使って、既にlikeしたか確認したあと、いいねする（重複させない）
-    // public function like($postId)
-    // {
-    //   if($this->isLike($postId)){
-    //     //もし既に「いいね」していたら何もしない
-    //   } else {
-    //     $this->likes()->attach($postId);
-    //   }
-    // }
+    // 相互フォローユーザーを取得
+    public function mutualFollows()
+    {
+    // ユーザーがフォローしている人たち
+    $following = $this->following()->pluck('followed_id')->toArray();
 
-    // //isLikeを使って、既にlikeしたか確認して、もししていたら解除する
-    // public function unlike($postId)
-    // {
-    //   if($this->isLike($postId)){
-    //     //もし既に「いいね」していたら消す
-    //     $this->likes()->detach($postId);
-    //   } else {
-    //  }
-    // }
+    // ユーザーをフォローしている人たち
+    $followers = $this->followers()->pluck('follower_id')->toArray();
+
+    // 相互フォローしているユーザーIDのみを抽出
+    $mutualFollowsIds = array_intersect($following, $followers);
+
+    // 相互フォローしているユーザーのコレクションを返す
+    return User::whereIn('id', $mutualFollowsIds)->get();
+    }
 }
