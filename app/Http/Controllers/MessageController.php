@@ -5,35 +5,59 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Message;
 use App\Models\User;
+use App\Models\MessageRoom;
 use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
-    public function create($id)
-    {
-        $user = User::find($id);
-        return view('messages.show', compact('user'));
-    }
+    
+        public function createOrGetRoom(Request $request)
+        {
+            $userId = $request->user()->id; // 認証されたユーザーのID
+            $receiverId = $request->receiver_id; // フロントエンドから受け取る、メッセージを受け取るユーザーのID
 
-    public function send(Request $request)
-    {
-        // バリデーション
-        $request->validate([
-            'message' => 'required|string|max:255', // 必要に応じてバリデーションルールを調整
-            'receiver_id' => 'required|integer', // 受信者IDが必須かつ整数であることを確認
-        ]);
+            $room = MessageRoom::createOrGetRoom($userId, $receiverId);
 
-        $receiverId = $request->input('receiver_id'); // フォームから受信者IDを取得
-        
-        // メッセージをデータベースに保存
-        $message = new Message();
-        $message->content = $request->message;
-        $message->sender_id = auth()->id(); // 送信者のID（認証ユーザーのIDを使用）
-        $message->receiver_id = $receiverId; // 受信者IDを設定
-        // 他に必要なフィールドがあればここで設定
-        $message->save();
+            return response()->json([
+                'room' => $room,
+            ]);
+        }
 
-        // メッセージ送信後のリダイレクト先（例：メッセージ一覧ページ）
-        return redirect()->route('messages.create')->with('success', 'メッセージを送信しました。');
-    }
+        public function show($roomId)
+        {
+            $userId = auth::id();
+            $receiver_id = MessageRoom::find($roomId)
+            ->users()
+            ->where('user_id', '!=', $userId)
+            ->firstOrFail()
+            ->id;
+            $messages = Message::where('message_room_id', $roomId)->with('sender')->get();
+            return view('messages.show', compact('messages', 'roomId','receiver_id'));
+        }
+
+
+        public function send(Request $request, $roomId)
+        {
+         $message = new Message;
+         $message->message_room_id = $roomId;
+         $message->sender_id = auth()->id();
+         $message->receiver_id = $request->receiver_id;
+         $message->content = $request->message; 
+         $message->save();
+    
+         return redirect()->route('messages.show', ['roomId' => $roomId]);
+        }
+
+        // public function getMessages($roomId)
+            // {
+            //  $messages = Message::where('message_room_id', $roomId)
+            //                     ->with('user') // メッセージを送信したユーザーの情報も取得
+            //                     ->get();
+
+            //  return response()->json([
+            //     'messages' => $messages,
+            //  ]);
+            // }
+
+
 }

@@ -14,7 +14,7 @@
                 <x-nav-link :href="route('post.index')" :active="request()->routeIs('post.index')" class="text-base"> <!-- text-baseを追加してテキストサイズを調整 -->
                  投稿一覧
                  </x-nav-link>
-                <x-nav-link :href="route('mutual-follows.index')" :active="request()->routeIs('mutual-follows.index')" class="text-base">
+                <x-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.index')" class="text-base">
                   メッセージ
                 </x-nav-link>
                  <x-nav-link :href="route('post.create')" :active="request()->routeIs('post.create')" class="text-base">

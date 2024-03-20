@@ -10,8 +10,8 @@ class MutualFollowsController extends Controller
     public function index()
     {
         $user = Auth::user();// ログインユーザー情報を変数に代入
-        $mutualFollows = $user->mutualFollows();//相互フォローユーザーの取得
+        $mutualFollows = $user->mutualFollows();//相互フォローユーザーの取得_ユーザーデータベースに記載しており、各ログインユーザーの相互フォローユーザーを取得
 
-        return view('mutual_follows.index', compact('mutualFollows'));
+        return view('messages.index', compact('mutualFollows'));
     }
 }

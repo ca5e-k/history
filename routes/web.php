@@ -58,12 +58,14 @@ Route::get('/users/{user}/posts', [UserController::class, 'showPosts'])->name('u
 Route::post('/follow/{user}', [RelationController::class, 'follow'])->name('follow');
 Route::delete('/unfollow/{user}', [RelationController::class, 'unfollow'])->name('unfollow');
 
-// 相互フォローユーザー間のメッセージ送信のルート
-Route::post('/messages/send', [MessageController::class, 'send'])->middleware('auth')->name('messages.send');
 
-// 各ユーザーとのメッセージの表示
-Route::get('/messages/{user}', [MessageController::class, 'create'])->name('messages.create');
+// 相互フォローユーザーを一覧表示
+Route::get('/messages/index', [MutualFollowsController::class, 'index'])->name('messages.index');
 
-Route::get('/mutual-follows', [MutualFollowsController::class, 'index'])->name('mutual-follows.index');
+// メッセージルームの表示
+Route::get('/messages/{roomId}', [MessageController::class, 'show'])->name('messages.show');
+
+// メッセージを送信するためのルーター
+Route::post('/messages/{roomId}/send', [MessageController::class, 'send'])->name('messages.send');
 
 require __DIR__.'/auth.php';
