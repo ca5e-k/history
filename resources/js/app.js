@@ -1,7 +1,7 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 // import { scrollToBottom } from './scrollToBottom';
-import './message';
+// import './message';
 
 require('./bootstrap');
 // require('./follow');
